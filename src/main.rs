@@ -11,13 +11,13 @@ fn main() {
         println!("Enter a command: ");
         let mut buffer = String::new();
         let stdin = io::stdin();
-        while stdin.read_line(&mut buffer).is_ok() {
+        if stdin.read_line(&mut buffer).is_ok() {
             match buffer.as_str().trim_end() {
                 "eq" => { are_equal() }
                 "which" => { which() }
                 "is_note" => { is_note() }
                 "ten_of" => { ten_of() }
-                _ => { println!("Unknown command '{}'.", buffer)}
+                _ => { println!("Unknown command '{}'.", buffer.trim_end())}
             }
         }    
     }
@@ -25,7 +25,7 @@ fn main() {
 
 pub fn ten_of() {
     let note = {
-        print!("Which note do you want to listen to for?");
+        println!("Which note do you want to listen to for?:");
         let mut buffer = String::new();
         let stdin = io::stdin();
         stdin.read_line(&mut buffer).unwrap();
@@ -33,7 +33,7 @@ pub fn ten_of() {
         if let Ok(note) = e {
             note
         } else {            
-            println!("Invalid note");
+            println!("Invalid note: '{}'", buffer.trim_end());
             return;
         }
     };
@@ -49,15 +49,15 @@ pub fn which() {}
 
 pub fn is_note() {
     let note = {
-        print!("Which note do you want to listen out for?");
+        println!("Which note do you want to listen out for?:");
         let mut buffer = String::new();
         let stdin = io::stdin();
         stdin.read_line(&mut buffer).unwrap();
-        let e = Note::try_from(buffer);
+        let e = Note::try_from(buffer.trim_end());
         if let Ok(note) = e {
             note
         } else {            
-            println!("Invalid note");
+            println!("Invalid note: '{}'", buffer.trim_end());
             return;
         }
     };
@@ -74,7 +74,7 @@ pub fn is_note() {
         let same = note_a == note;
 
         play_note(note_a, octave_a);
-        print!("Was this a {:?} (e = equal, n = not equal)", note);
+        println!("Was this a {:?} (e = equal, n = not equal)", note);
         let mut buffer = String::new();
         let stdin = io::stdin();
         if stdin.read_line(&mut buffer).is_ok() {
@@ -103,7 +103,7 @@ pub fn are_equal() {
     for _ in 0..10 {
         let mut rng = thread_rng();
         let note_a: Note = unsafe { std::mem::transmute((rng.gen_range(0_u32..11_u32))) }; 
-        let octave_a = rng.gen_range(3..8);
+        let octave_a = rng.gen_range(3..6);
 
         let same: bool = rng.gen();
         let note_b = if same { note_a } else { 
@@ -111,7 +111,7 @@ pub fn are_equal() {
             if gen == (note_a as u32) { gen += 1 }  
             unsafe { std::mem::transmute(gen) }
         };
-        let mut octave_b = rng.gen_range(3..8);
+        let mut octave_b = rng.gen_range(3..6);
         if octave_b == octave_a {  octave_b += 1; }
 
         play_note(note_a, octave_a);
